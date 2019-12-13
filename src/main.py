@@ -3,8 +3,17 @@ import time
 import argparse
 import urllib.parse
 import re
+import os
+import sys
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-t', '--tag', default='gui')
+parser.add_argument('-e', '--explicit_tags', nargs='*')
+
+args = parser.parse_args()
 
 
 def get_repos_url(relative_url):
@@ -22,10 +31,19 @@ def get_soup(url):
     return BeautifulSoup(r.content, 'html.parser')
 
 
-explicit_list = ['gamedev', 'emulator', 'framework']
+def write_csv(path, list):
+    if not os.path.exists(os.path.dirname(path)):
+        os.mkdir(os.path.dirname(path))
+    with open(path, mode='w') as f:
+        f.write('\n'.join(list))
+
+
+explicit_list = args.explicit_tags
 
 
 def is_explicit(soup):
+    if not explicit_list:
+        return False
     tags = [x.get_text() for x in soup.select('a.tag')]
     for tag in tags:
         if tag in explicit_list:
@@ -33,13 +51,15 @@ def is_explicit(soup):
     return False
 
 
+print('start')
+
 repos_list = []
 not_found_repos_list = []
 index = 1
-while index < 2:
+while True:
     try:
 
-        query = {'names': 'game', 'page': index}
+        query = {'names': args.tag, 'page': index}
         encoded_query = urllib.parse.urlencode(query)
         soup = get_soup(
             'https://www.openhub.net/tags?' + encoded_query)
@@ -54,10 +74,11 @@ while index < 2:
                 title_content = project.select_one('h2.title a')
                 url = title_content.get('href')
                 title = title_content.get_text()
+                tqdm.write(title)
 
                 info_content = project.select_one('div.stats')
 
-                pattern = '([\d\.]+).*'
+                pattern = r'([\d\.]+).*'
                 loc = re.match(pattern, info_content.select_one(
                     'a').get_text()).group(1)
                 tqdm.write(loc)
@@ -67,8 +88,6 @@ while index < 2:
 
                 if float(loc) <= 0:
                     raise Exception
-
-                tqdm.write(title)
 
                 repos_url = get_repos_url(url)
 
@@ -81,8 +100,6 @@ while index < 2:
         pass
     index += 1
 
-with open('./repos_table.csv', mode='w') as f:
-    f.write('\n'.join(repos_list))
-
-with open('./not_found_repos_table.csv', mode='w') as f:
-    f.write('\n'.join(not_found_repos_list))
+write_csv(str(os.path.join(args.tag + '/', 'repos_table.csv')), repos_list)
+write_csv(str(os.path.join(args.tag + '/',
+                           'not_found_repos_table.csv')), not_found_repos_list)
