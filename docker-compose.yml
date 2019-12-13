@@ -7,8 +7,9 @@ services:
         command: python ./src/main.py -t gui
         volumes: 
             - ./:/app
-    # game:
-    #     container_name: game
-    #     build: .
-    #     command: 'python ./src/main.py -t game -e emulator gamedev framework'
-        
+    game:
+        container_name: game
+        build: .
+        command: 'python ./src/main.py -t game -e emulator gamedev framework'
+        volumes: 
+            - ./:/app
