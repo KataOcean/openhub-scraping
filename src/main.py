@@ -6,6 +6,7 @@ import re
 import os
 import sys
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 
@@ -51,15 +52,15 @@ def is_explicit(soup):
     return False
 
 
-print('start')
+tqdm.write('start')
 
-index = args.index
+index = int(args.index)
 repos_table_path = os.path.join(args.tag + '/', 'repos_table.csv')
 not_found_repos_table_path = os.path.join(
     args.tag + '/', 'not_found_repos_table.csv')
 while True:
     try:
-        print('page : ' + str(index))
+        tqdm.write('page : ' + str(index))
         query = {'names': args.tag, 'page': str(index)}
         encoded_query = urllib.parse.urlencode(query)
         soup = get_soup(
@@ -75,14 +76,14 @@ while True:
                 title_content = project.select_one('h2.title a')
                 url = title_content.get('href')
                 title = title_content.get_text()
-                print(title)
+                tqdm.write(title)
 
                 info_content = project.select_one('div.stats')
 
                 pattern = r'([\d\.]+).*'
                 loc = re.match(pattern, info_content.select_one(
                     'a').get_text()).group(1)
-                print(loc)
+                tqdm.write(loc)
 
                 if is_explicit(project):
                     raise Exception
@@ -92,12 +93,12 @@ while True:
 
                 repos_url = get_repos_url(url)
 
-                print(repos_url)
+                tqdm.write(repos_url)
                 write_csv(repos_table_path, title + ',' + repos_url)
             except:
                 write_csv(not_found_repos_table_path, title)
                 pass
     except:
-        print('error occured page :' + str(index))
+        tqdm.write('error occured page :' + str(index))
         break
     index += 1
