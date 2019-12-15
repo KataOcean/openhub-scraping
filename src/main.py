@@ -71,7 +71,7 @@ while True:
         if not list_root:
             break
 
-        for project in tqdm(list_root.select('div.well'), leave=False):
+        for project in list_root.select('div.well'):
             try:
                 title_content = project.select_one('h2.title a')
                 url = title_content.get('href')
