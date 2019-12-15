@@ -6,7 +6,6 @@ import re
 import os
 import sys
 from bs4 import BeautifulSoup
-from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 
@@ -31,11 +30,11 @@ def get_soup(url):
     return BeautifulSoup(r.content, 'html.parser')
 
 
-def write_csv(path, list):
+def write_csv(path, text):
     if not os.path.exists(os.path.dirname(path)):
         os.mkdir(os.path.dirname(path))
-    with open(path, mode='w') as f:
-        f.write('\n'.join(list))
+    with open(path, mode='a') as f:
+        f.write(text + '\n')
 
 
 explicit_list = args.explicit_tags
@@ -53,13 +52,14 @@ def is_explicit(soup):
 
 print('start')
 
-repos_list = []
-not_found_repos_list = []
 index = 1
+repos_table_path = os.path.join(args.tag + '/', 'repos_table.csv')
+not_found_repos_table_path = os.path.join(
+    args.tag + '/', 'not_found_repos_table.csv')
 while True:
     try:
-
-        query = {'names': args.tag, 'page': index}
+        print('page : ' + str(index))
+        query = {'names': args.tag, 'page': str(index)}
         encoded_query = urllib.parse.urlencode(query)
         soup = get_soup(
             'https://www.openhub.net/tags?' + encoded_query)
@@ -69,19 +69,19 @@ while True:
         if not list_root:
             break
 
-        for project in tqdm(list_root.select('div.well'), leave=False):
+        for project in list_root.select('div.well'):
             try:
                 title_content = project.select_one('h2.title a')
                 url = title_content.get('href')
                 title = title_content.get_text()
-                tqdm.write(title)
+                print(title)
 
                 info_content = project.select_one('div.stats')
 
                 pattern = r'([\d\.]+).*'
                 loc = re.match(pattern, info_content.select_one(
                     'a').get_text()).group(1)
-                tqdm.write(loc)
+                print(loc)
 
                 if is_explicit(project):
                     raise Exception
@@ -91,15 +91,12 @@ while True:
 
                 repos_url = get_repos_url(url)
 
-                tqdm.write(repos_url)
-                repos_list.append(title + ',' + repos_url)
+                print(repos_url)
+                write_csv(repos_table_path, title + ',' + repos_url)
             except:
-                not_found_repos_list.append(title)
+                write_csv(not_found_repos_table_path, title)
                 pass
     except:
-        pass
+        print('error occured page :' + str(index))
+        break
     index += 1
-
-write_csv(str(os.path.join(args.tag + '/', 'repos_table.csv')), repos_list)
-write_csv(str(os.path.join(args.tag + '/',
-                           'not_found_repos_table.csv')), not_found_repos_list)
