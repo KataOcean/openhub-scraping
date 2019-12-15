@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('-t', '--tag', default='gui')
 parser.add_argument('-e', '--explicit_tags', nargs='*')
+parser.add_argument('-i', '--index', default=1)
 
 args = parser.parse_args()
 
@@ -52,7 +53,7 @@ def is_explicit(soup):
 
 print('start')
 
-index = 1
+index = args.index
 repos_table_path = os.path.join(args.tag + '/', 'repos_table.csv')
 not_found_repos_table_path = os.path.join(
     args.tag + '/', 'not_found_repos_table.csv')
