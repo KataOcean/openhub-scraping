@@ -16,6 +16,8 @@ args = parser.parse_args()
 def get_soup(url):
     time.sleep(5)
     r = requests.get(url)
+    if r.status_code == 404:
+        return None
     return BeautifulSoup(r.content, 'html.parser')
 
 
@@ -23,6 +25,8 @@ explicit_list = ['game-engine', 'gamedev', 'emulator', 'library']
 
 
 def is_explicit(soup):
+    if not soup:
+        return True
     if not explicit_list:
         return False
     tags = [x.get_text() for x in soup.select('a.topic-tag')]
