@@ -29,7 +29,8 @@ def is_explicit(soup):
         return True
     if not explicit_list:
         return False
-    tags = [x.get_text() for x in soup.select('a.topic-tag')]
+    tags = [x.get_text().strip() for x in soup.select('a.topic-tag')]
+    print(tags)
     for tag in tags:
         if tag in explicit_list:
             return True
@@ -49,4 +50,4 @@ with open(args.input) as f:
             pass
 
 with open(args.output, 'w') as f:
-    f.write('\n'.join(repos_list))
+    f.write(''.join(set(repos_list)))
