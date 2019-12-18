@@ -21,7 +21,7 @@ def get_soup(url):
     return BeautifulSoup(r.content, 'html.parser')
 
 
-explicit_list = ['game-engine', 'gamedev', 'emulator', 'library']
+explicit_list = ['game-engine', 'gamedev', 'emulator', 'library', 'framework']
 
 
 def is_explicit(soup):
@@ -30,7 +30,7 @@ def is_explicit(soup):
     if not explicit_list:
         return False
     tags = [x.get_text().strip() for x in soup.select('a.topic-tag')]
-    print(tags)
+    tqdm.write(tags)
     for tag in tags:
         if tag in explicit_list:
             return True
