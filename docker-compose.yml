@@ -6,4 +6,5 @@ services:
         build: .
         volumes: 
             - ./:/app
+            - ./result:/app/result
         tty: true
