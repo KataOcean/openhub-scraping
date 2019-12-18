@@ -1,15 +1,9 @@
 version: '3'
 
 services: 
-    non_game:
-        container_name: non_game
+    python:
+        container_name: python
+        restart: always
         build: .
-        command: python -u ./src/main.py -t gui
-        volumes: 
-            - ./:/app
-    game:
-        container_name: game
-        build: .
-        command: 'python -u ./src/main.py -t game -e emulator gamedev framework'
         volumes: 
             - ./:/app
