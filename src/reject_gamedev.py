@@ -35,14 +35,11 @@ def is_explicit(soup):
 repos_list = []
 
 with open(args.input) as f:
-    for line in f.readlines():
-        try:
-            soup = get_soup(line)
-            if is_explicit(soup):
-                continue
-            repos_list.append(line)
-        except:
-            pass
+    for line in tqdm(f.readlines()):
+        soup = get_soup(line)
+        if is_explicit(soup):
+            continue
+        repos_list.append(line)
 
 with open(args.output, 'w') as f:
     f.write('\n'.join(repos_list))
