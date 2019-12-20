@@ -42,7 +42,7 @@ repos_list = []
 lines = []
 
 with open(args.input) as f:
-    lines = [line for line in f.readlines]
+    lines = [line for line in f.readlines()]
 
 for line in tqdm(lines):
     try:
