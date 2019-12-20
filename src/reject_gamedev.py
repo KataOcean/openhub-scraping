@@ -21,7 +21,8 @@ def get_soup(url):
     return BeautifulSoup(r.content, 'html.parser')
 
 
-explicit_list = ['game-engine', 'gamedev', 'emulator', 'library', 'framework']
+explicit_list = ['engine', 'gamedev',
+                 'emulator', 'library', 'framework', 'server']
 
 
 def is_explicit(soup):
@@ -30,24 +31,27 @@ def is_explicit(soup):
     if not explicit_list:
         return False
     tags = [x.get_text().strip() for x in soup.select('a.topic-tag')]
-    tqdm.write(tags)
     for tag in tags:
-        if tag in explicit_list:
-            return True
+        for explicit_tag in explicit_list:
+            if explicit_tag in tag:
+                return True
     return False
 
 
 repos_list = []
+lines = []
 
 with open(args.input) as f:
-    for line in tqdm(f.readlines()):
-        try:
-            soup = get_soup(line)
-            if is_explicit(soup):
-                continue
-            repos_list.append(line)
-        except:
-            pass
+    lines = [line for line in f.readlines]
+
+for line in tqdm(lines):
+    try:
+        soup = get_soup(line)
+        if is_explicit(soup):
+            continue
+        repos_list.append(line)
+    except:
+        pass
 
 with open(args.output, 'w') as f:
     f.write(''.join(set(repos_list)))

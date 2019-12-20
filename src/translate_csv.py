@@ -17,8 +17,8 @@ with open(args.input) as f:
     for col in cols:
         if not 'github' in col[1]:
             continue
-        repos_list.append(col[0] + ',' + col[1].replace(
+        repos_list.append(col[1].replace(
             'git://github', 'https://github'))
 
 with open(args.output, 'w') as f:
-    f.write('\n'.join(repos_list))
+    f.write('\n'.join(set(repos_list)))
