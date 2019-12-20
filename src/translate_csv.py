@@ -12,12 +12,13 @@ repos_list = []
 
 with open(args.input) as f:
     reader = csv.reader(f)
-    cols = [row[1] for row in reader]
+    cols = [row for row in reader]
 
     for col in cols:
-        if not 'github' in col:
+        if not 'github' in col[1]:
             continue
-        repos_list.append(col.replace('git://github', 'https://github'))
+        repos_list.append(col[0] + ',' + col[1].replace(
+            'git://github', 'https://github'))
 
 with open(args.output, 'w') as f:
     f.write('\n'.join(repos_list))
